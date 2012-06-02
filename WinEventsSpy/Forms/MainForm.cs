@@ -4,6 +4,7 @@ using WinEventsSpy.Wrappers;
 using WinEventsSpy.PInvoke;
 using WinEventsSpy.PInvoke.Cursor.Structures;
 using WinEventsSpy.PInvoke.WinEvents.Structures;
+using WinEventsSpy.PInvoke.Windows.Structures;
 
 namespace WinEventsSpy.Forms
 {
@@ -12,8 +13,8 @@ namespace WinEventsSpy.Forms
         private enum FormState
         {
             Idle,
-            Capturing,
-            Active
+            MouseActive,
+            TargetActive
         }
 
 
@@ -42,11 +43,7 @@ namespace WinEventsSpy.Forms
             mouseGrabber.Stopped += new EventHandler(mouseGrabber_Stopped);
             mouseGrabber.Grabbed += new EventHandler<EventGrabber.GrabbedEventArgs>(mouseGrabber_Grabbed);
 
-            targetGrabber = new EventGrabber
-            {
-                MinEventType = SetWinEventHookEventType.EVENT_MIN,
-                MaxEventType = SetWinEventHookEventType.EVENT_MAX
-            };
+            targetGrabber = new EventGrabber();
             targetGrabber.Stopped += new EventHandler(targetGrabber_Stopped);
             targetGrabber.Grabbed += new EventHandler<EventGrabber.GrabbedEventArgs>(targetGrabber_Grabbed);
 
@@ -91,13 +88,17 @@ namespace WinEventsSpy.Forms
 
         private void mouseGrabber_Started(object sender, EventArgs e)
         {
-            state = FormState.Capturing;
+            state = FormState.MouseActive;
 
-            systemCursor.TryCopy(SystemCursorId.CROSS, SystemCursorId.ARROW);
+            try
+            {
+                systemCursor.Copy(SystemCursorId.CROSS, SystemCursorId.ARROW);
+            }
+            catch (PInvokeException)
+            { }
 
-            lbxMessages.Items.Clear();
+            aslbxMessages.Items.Clear();
             btnToggleHook.Text = "Cancel";
-            //WindowState = FormWindowState.Minimized;
         }
 
         private void mouseGrabber_Stopped(object sender, EventArgs e)
@@ -110,8 +111,6 @@ namespace WinEventsSpy.Forms
 
                 btnToggleHook.Text = "Hook";
             }
-
-            //WindowState = FormWindowState.Normal;
         }
 
         private void mouseGrabber_Grabbed(object sender, EventGrabber.GrabbedEventArgs e)
@@ -132,7 +131,7 @@ namespace WinEventsSpy.Forms
                 targetMonitor.ProcessId = e.ProcessId;
                 targetMonitor.Start();
 
-                state = FormState.Active;
+                state = FormState.TargetActive;
 
                 tbxWindowId.Text = e.Window.ToInt64().ToString();
                 tbxProcessId.Text = e.ProcessId.ToString();
@@ -168,14 +167,9 @@ namespace WinEventsSpy.Forms
                     e.StandardObject.Value.ToString("F") :
                     e.ObjectId.ToString("X8")).
                     PadRight(23);
-                var item = string.Format(@"{0}    {1}    {2}", itemDate, itemEventType, itemObject);
-                lbxMessages.Items.Add(item);
 
-                const int messagesMaxCount = 16;
-                if (lbxMessages.Items.Count > messagesMaxCount)
-                {
-                    lbxMessages.Items.RemoveAt(0);
-                }
+                var item = string.Format(@"{0}    {1}    {2}", itemDate, itemEventType, itemObject);
+                aslbxMessages.Items.Add(item);
             }
         }
 
@@ -216,7 +210,7 @@ namespace WinEventsSpy.Forms
                     }
                     break;
 
-                case FormState.Capturing:
+                case FormState.MouseActive:
                     try
                     {
                         mouseGrabber.Stop();
@@ -228,7 +222,7 @@ namespace WinEventsSpy.Forms
                     }
                     break;
 
-                case FormState.Active:
+                case FormState.TargetActive:
                     try
                     {
                         targetMonitor.Stop();

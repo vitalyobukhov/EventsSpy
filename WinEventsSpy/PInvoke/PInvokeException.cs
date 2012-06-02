@@ -6,6 +6,11 @@ namespace WinEventsSpy.PInvoke
 {
     sealed class PInvokeException : Exception
     {
+        public PInvokeException()
+            : base("An platform invocation exception has occurred", 
+                new Win32Exception(Marshal.GetLastWin32Error()))
+        { }
+
         public PInvokeException(string message)
             : base(message, new Win32Exception(Marshal.GetLastWin32Error()))
         { }

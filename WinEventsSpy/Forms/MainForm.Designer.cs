@@ -18,7 +18,7 @@ namespace WinEventsSpy.Forms
         private void InitializeComponent()
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
-            this.lbxMessages = new System.Windows.Forms.ListBox();
+            this.aslbxMessages = new WinEventsSpy.Controls.AutoscrollListBox();
             this.btnToggleHook = new System.Windows.Forms.Button();
             this.tbxProcessId = new System.Windows.Forms.TextBox();
             this.lblProcessId = new System.Windows.Forms.Label();
@@ -30,15 +30,15 @@ namespace WinEventsSpy.Forms
             // 
             // lbxMessages
             // 
-            this.lbxMessages.BackColor = System.Drawing.SystemColors.Control;
-            this.lbxMessages.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbxMessages.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
-            this.lbxMessages.FormattingEnabled = true;
-            this.lbxMessages.Location = new System.Drawing.Point(8, 8);
-            this.lbxMessages.Name = "lbxMessages";
-            this.lbxMessages.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
-            this.lbxMessages.Size = new System.Drawing.Size(456, 236);
-            this.lbxMessages.TabIndex = 0;
+            this.aslbxMessages.BackColor = System.Drawing.SystemColors.Control;
+            this.aslbxMessages.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.aslbxMessages.Font = new System.Drawing.Font("Consolas", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(204)));
+            this.aslbxMessages.FormattingEnabled = true;
+            this.aslbxMessages.Location = new System.Drawing.Point(8, 8);
+            this.aslbxMessages.Name = "lbxMessages";
+            this.aslbxMessages.SelectionMode = System.Windows.Forms.SelectionMode.MultiExtended;
+            this.aslbxMessages.Size = new System.Drawing.Size(456, 236);
+            this.aslbxMessages.TabIndex = 0;
             // 
             // btnToggleHook
             // 
@@ -102,7 +102,7 @@ namespace WinEventsSpy.Forms
             this.lblWindowId.TabIndex = 8;
             this.lblWindowId.Text = "Window id";
             // 
-            // MainForm
+            // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -114,11 +114,11 @@ namespace WinEventsSpy.Forms
             this.Controls.Add(this.lblProcessId);
             this.Controls.Add(this.tbxProcessId);
             this.Controls.Add(this.btnToggleHook);
-            this.Controls.Add(this.lbxMessages);
+            this.Controls.Add(this.aslbxMessages);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "MainForm";
+            this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "WinEventsSpy";
             this.ResumeLayout(false);
@@ -128,7 +128,7 @@ namespace WinEventsSpy.Forms
 
         #endregion
 
-        private System.Windows.Forms.ListBox lbxMessages;
+        private WinEventsSpy.Controls.AutoscrollListBox aslbxMessages;
         private System.Windows.Forms.Button btnToggleHook;
         private System.Windows.Forms.TextBox tbxProcessId;
         private System.Windows.Forms.Label lblProcessId;

@@ -120,34 +120,6 @@ namespace WinEventsSpy.Wrappers
             }
         }
 
-        public bool TryChange(IntPtr newCursor, SystemCursorId targetCursorId)
-        {
-            var result = false;
-
-            try
-            {
-                Change(newCursor, targetCursorId);
-            }
-            catch (Win32Exception)
-            { }
-
-            return result;
-        }
-
-        public bool TryCopy(SystemCursorId sourceCursorId, SystemCursorId targetCursorId)
-        {
-            var result = false;
-
-            try
-            {
-                Copy(sourceCursorId, targetCursorId);
-            }
-            catch (PInvokeException)
-            { }
-
-            return result;
-        }
-
         public bool TryRestoreOne(SystemCursorId cursorId)
         {
             var result = false;

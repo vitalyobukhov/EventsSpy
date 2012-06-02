@@ -12,7 +12,7 @@ namespace WinEventsSpy.PInvoke.Processes
         [DllImport("kernel32.dll", SetLastError = true)]
         public static extern bool GetExitCodeProcess(IntPtr process, out GetExitCodeProcessExitCode exitCode);
 
-        [DllImport("kernel32.dll")]
+        [DllImport("kernel32.dll", SetLastError = true)]
         public static extern IntPtr OpenProcess(OpenProcessAccessFlag accessFlags, bool inheritHandle, uint processId);
     }
 }
