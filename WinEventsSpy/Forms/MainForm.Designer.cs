@@ -1,26 +1,13 @@
 ﻿using System.Windows.Forms;
 
-namespace WinEventsSpy
+namespace WinEventsSpy.Forms
 {
-    partial class MainForm
+    partial class Main
     {
         /// <summary>
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
 
         #region Windows Form Designer generated code
 
@@ -30,7 +17,7 @@ namespace WinEventsSpy
         /// </summary>
         private void InitializeComponent()
         {
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(Main));
             this.lbxMessages = new System.Windows.Forms.ListBox();
             this.btnToggleHook = new System.Windows.Forms.Button();
             this.tbxProcessId = new System.Windows.Forms.TextBox();

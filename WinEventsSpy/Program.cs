@@ -1,6 +1,6 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Windows.Forms;
+using WinEventsSpy.Forms;
 
 namespace WinEventsSpy
 {
@@ -11,7 +11,7 @@ namespace WinEventsSpy
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            Application.Run(new MainForm());
+            Application.Run(new Main());
         }
     }
 }
