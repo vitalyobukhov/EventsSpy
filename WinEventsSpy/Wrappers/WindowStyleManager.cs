@@ -6,8 +6,11 @@ using WinEventsSpy.PInvoke;
 namespace WinEventsSpy.Wrappers
 {
     // wrapper for window style management
-    static class WindowStyleManager
+    sealed class WindowStyleManager
     {
+        private IntPtr window;
+
+
         private static bool IsLong32
         {
             get
@@ -17,9 +20,38 @@ namespace WinEventsSpy.Wrappers
         }
 
 
-        public static WindowStyle GetStyle(IntPtr window)
+        public IntPtr Window
         {
-            var result = GetWindowLong(window, GetWindowLongOffset.GWL_STYLE);
+            get
+            {
+                return window;
+            }
+            set
+            {
+                if (!Functions.IsWindow(value))
+                {
+                    throw new PInvokeException("Value is not window handle");
+                }
+
+                window = value;
+            }
+        }
+
+
+        public WindowStyleManager()
+        {
+            window = IntPtr.Zero;
+        }
+
+        public WindowStyleManager(IntPtr window)
+        {
+            Window = window;
+        }
+
+
+        public WindowStyle GetStyle()
+        {
+            var result = GetWindowLong(GetWindowLongOffset.GWL_STYLE);
             if (result == 0)
             {
                 throw new PInvokeException("Unable to get window style");
@@ -27,9 +59,9 @@ namespace WinEventsSpy.Wrappers
             return (WindowStyle)result;
         }
 
-        public static ExtendedWindowStyle GetExtendedStyle(IntPtr window)
+        public ExtendedWindowStyle GetExtendedStyle()
         {
-            var result = GetWindowLong(window, GetWindowLongOffset.GWL_EXSTYLE);
+            var result = GetWindowLong(GetWindowLongOffset.GWL_EXSTYLE);
             if (result == 0)
             {
                 throw new PInvokeException("Unable to get window extended style");
@@ -37,72 +69,84 @@ namespace WinEventsSpy.Wrappers
             return (ExtendedWindowStyle)result;
         }
 
-        public static void SetStyle(IntPtr window, WindowStyle style)
+        public void SetStyle(WindowStyle style)
         {
-            var result = SetWindowLong(window, GetWindowLongOffset.GWL_STYLE, (long)style);
+            var result = SetWindowLong(GetWindowLongOffset.GWL_STYLE, (long)style);
             if (result == 0)
             {
                 throw new PInvokeException("Unable to set window style");
             }
         }
 
-        public static void SetExtendedStyle(IntPtr window, ExtendedWindowStyle style)
+        public void SetExtendedStyle(ExtendedWindowStyle style)
         {
-            var result = SetWindowLong(window, GetWindowLongOffset.GWL_EXSTYLE, (long)style);
+            var result = SetWindowLong(GetWindowLongOffset.GWL_EXSTYLE, (long)style);
             if (result == 0)
             {
                 throw new PInvokeException("Unable to set window extended style");
             }
         }
 
-        public static bool HasStyle(IntPtr window, WindowStyle style)
+        public bool HasStyle(WindowStyle style)
         {
-            return (GetStyle(window) & style) != 0;
+            return (GetStyle() & style) != 0;
         }
 
-        public static bool HasExtendedStyle(IntPtr window, ExtendedWindowStyle style)
+        public bool HasExtendedStyle(ExtendedWindowStyle style)
         {
-            return (GetExtendedStyle(window) & style) != 0;
+            return (GetExtendedStyle() & style) != 0;
         }
 
-        public static void AddStyle(IntPtr window, WindowStyle style)
+        public void AddStyle(WindowStyle style)
         {
-            var oldStyle = GetStyle(window);
+            var oldStyle = GetStyle();
             var newStyle = (oldStyle | style);
-            SetStyle(window, newStyle);
+            SetStyle(newStyle);
         }
 
-        public static void AddExtendedStyle(IntPtr window, ExtendedWindowStyle style)
+        public void AddExtendedStyle(IntPtr window, ExtendedWindowStyle style)
         {
-            var oldStyle = GetExtendedStyle(window);
+            var oldStyle = GetExtendedStyle();
             var newStyle = (oldStyle | style);
-            SetExtendedStyle(window, newStyle);
+            SetExtendedStyle(newStyle);
         }
 
-        public static void RemoveStyle(IntPtr window, WindowStyle style)
+        public void RemoveStyle(WindowStyle style)
         {
-            var oldStyle = GetStyle(window);
+            var oldStyle = GetStyle();
             var newStyle = ((uint)oldStyle & (~((uint)style)));
-            SetStyle(window, (WindowStyle)newStyle);
+            SetStyle((WindowStyle)newStyle);
         }
 
-        public static void RemoveExtendedStyle(IntPtr window, ExtendedWindowStyle style)
+        public void RemoveExtendedStyle(ExtendedWindowStyle style)
         {
-            var oldStyle = GetExtendedStyle(window);
+            var oldStyle = GetExtendedStyle();
             var newStyle = (oldStyle & (~style));
-            SetExtendedStyle(window, newStyle);
+            SetExtendedStyle(newStyle);
         }
 
 
-        private static long GetWindowLong(IntPtr window, GetWindowLongOffset offset)
+        private void CheckWindow()
         {
+            if (!Functions.IsWindow(window))
+            {
+                throw new PInvokeException("Window does not exists");
+            }
+        }
+
+        private long GetWindowLong(GetWindowLongOffset offset)
+        {
+            CheckWindow();
+
             return IsLong32 ?
                 Functions.GetWindowLong32(window, offset) :
                 Functions.GetWindowLong64(window, offset);
         }
 
-        private static long SetWindowLong(IntPtr window, GetWindowLongOffset offset, long newValue)
+        private long SetWindowLong(GetWindowLongOffset offset, long newValue)
         {
+            CheckWindow();
+
             return IsLong32 ?
                 Functions.SetWindowLong32(window, offset, (int)newValue) :
                 Functions.SetWindowLong64(window, offset, newValue);

@@ -39,7 +39,7 @@ namespace WinEventsSpy.Wrappers
         {
             lock (guardLock)
             {
-                TryInit();
+                Init();
 
                 if (File.Exists(guardFilepath))
                 {
@@ -47,7 +47,7 @@ namespace WinEventsSpy.Wrappers
                 }
                 else
                 {
-                    File.Create(guardFilepath);
+                    File.Create(guardFilepath).Close();
                 }
             }
         }
@@ -58,11 +58,11 @@ namespace WinEventsSpy.Wrappers
 
             lock (guardLock)
             {
-                TryInit();
+                Init();
 
                 if (!File.Exists(guardFilepath))
                 {
-                    File.Create(guardFilepath);
+                    File.Create(guardFilepath).Close();
                     result = true;
                 }
             }
@@ -74,7 +74,7 @@ namespace WinEventsSpy.Wrappers
         {
             lock (guardLock)
             {
-                TryInit();
+                Init();
 
                 if (!File.Exists(guardFilepath))
                 {
@@ -93,10 +93,16 @@ namespace WinEventsSpy.Wrappers
 
             lock (guardLock)
             {
-                TryInit();
+                Init();
                 if (File.Exists(guardFilepath))
                 {
-                    File.Delete(guardFilepath);
+                    try
+                    {
+                        File.Delete(guardFilepath);
+                    }
+                    catch (Exception e)
+                    {
+                    }
                     result = true;
                 }
             }
@@ -111,7 +117,7 @@ namespace WinEventsSpy.Wrappers
         }
 
 
-        private void TryInit()
+        private void Init()
         {
             if (guardFilepath == null)
             {

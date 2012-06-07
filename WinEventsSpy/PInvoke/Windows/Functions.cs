@@ -17,5 +17,8 @@ namespace WinEventsSpy.PInvoke.Windows
 
         [DllImport("user32.dll", EntryPoint = "SetWindowLongPtr", SetLastError = true)]
         public static extern long SetWindowLong64(IntPtr window, GetWindowLongOffset offset, long newValue);
+
+        [DllImport("user32.dll")]
+        public static extern bool IsWindow(IntPtr handle);
     }
 }

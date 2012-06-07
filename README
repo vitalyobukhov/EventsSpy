@@ -1,1 +1,3 @@
-﻿WinEvent demo
+﻿WinAPI WinEvents demo.
+Demonstrates work with WinEvents API and other WinAPI features using P/Invoke.
+Implemented as WinForms application with .NET Framework 2.0.

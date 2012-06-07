@@ -25,7 +25,7 @@ namespace WinEventsSpy.Wrappers
         private ManualResetEvent processEvent;
         private ManualResetEvent stopEvent;
 
-        private bool disposed;
+        private bool? disposed;
 
 
         public uint ProcessId { get; set; }
@@ -51,6 +51,10 @@ namespace WinEventsSpy.Wrappers
         {
             started = false;
             stateLock = new object();
+
+            process = IntPtr.Zero;
+            processEvent = null;
+            stopEvent = new ManualResetEvent(false);
 
             disposed = false;
 
@@ -89,9 +93,9 @@ namespace WinEventsSpy.Wrappers
 
                 processEvent = new ManualResetEvent(false);
                 processEvent.SafeWaitHandle = new SafeWaitHandle(process, true);
-                stopEvent = new ManualResetEvent(false);
+                stopEvent.Reset();
 
-                new Thread(new ThreadStart(Monitor)).Start();
+                new Thread(Monitor).Start();
 
                 if (Started != null)
                 {
@@ -112,8 +116,7 @@ namespace WinEventsSpy.Wrappers
                 started = false;
 
                 stopEvent.Set();
-
-                EndMonitor();
+                processEvent.Close();
 
                 if (Stopped != null)
                 {
@@ -129,43 +132,36 @@ namespace WinEventsSpy.Wrappers
         }
 
 
-        private void EndMonitor()
-        {
-            PInvoke.Resources.Functions.CloseHandle(process);
-
-            processEvent.Close();
-            stopEvent.Close();
-        }
-
         private void Monitor()
         {
             WaitHandle.WaitAny(new[] { processEvent, stopEvent });
 
-            lock(stateLock)
+            if (disposed == false)
             {
-                if (started)
+                lock (stateLock)
                 {
-                    GetExitCodeProcessExitCode exitCode;
-
-                    if (!PInvoke.Processes.Functions.GetExitCodeProcess(process, out exitCode))
+                    if (started)
                     {
-                        throw new PInvokeException("Unable to get process exit code");
-                    }
+                        GetExitCodeProcessExitCode exitCode;
 
-                    if (exitCode != GetExitCodeProcessExitCode.STATUS_PENDING)
-                    {
-                        started = false;
-
-                        EndMonitor();
-
-                        var eventArgs = new ExitedEventArgs
+                        if (!PInvoke.Processes.Functions.GetExitCodeProcess(process, out exitCode))
                         {
-                            ExitCode = exitCode
-                        };
+                            throw new PInvokeException("Unable to get process exit code");
+                        }
 
-                        if (Exited != null)
+                        if (exitCode != GetExitCodeProcessExitCode.STATUS_PENDING)
                         {
-                            Exited(this, eventArgs);
+                            started = false;
+
+                            var eventArgs = new ExitedEventArgs
+                            {
+                                ExitCode = exitCode
+                            };
+
+                            if (Exited != null)
+                            {
+                                Exited(this, eventArgs);
+                            }
                         }
                     }
                 }
@@ -174,22 +170,25 @@ namespace WinEventsSpy.Wrappers
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed == false)
             {
+                disposed = null;
+
                 if (disposing)
                 {
                     //dispose managed resources
                 }
 
-                //dispose unmanaged resources
+                // dispose unmanaged resources
                 lock (stateLock)
                 {
                     if (started)
                     {
-                        EndMonitor();
+                        stopEvent.Set();
+                        stopEvent.Close();
+                        processEvent.Close();
                     }
                 }
-                //timer.Dispose();
 
                 disposed = true;
             }
