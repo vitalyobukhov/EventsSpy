@@ -5,6 +5,7 @@ using WinEventsSpy.PInvoke;
 
 namespace WinEventsSpy.Wrappers
 {
+    // wrapper for window style management
     static class WindowStyleManager
     {
         private static bool IsLong32

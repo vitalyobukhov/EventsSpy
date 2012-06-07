@@ -4,6 +4,6 @@
     {
         IMAGE_BITMAP = 0x0,
         IMAGE_CURSOR = 0x1,
-        IMAGE_ICON = 0x2
+        IMAGE_ICON   = 0x2
     }
 }

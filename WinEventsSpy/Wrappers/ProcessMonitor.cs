@@ -4,9 +4,12 @@ using System.Text;
 using System.Timers;
 using WinEventsSpy.PInvoke.Processes.Structures;
 using WinEventsSpy.PInvoke;
+using System.Threading;
+using Microsoft.Win32.SafeHandles;
 
 namespace WinEventsSpy.Wrappers
 {
+    // wrapper to monitor process availability
     sealed class ProcessMonitor : IDisposable
     {
         public sealed class ExitedEventArgs : EventArgs
@@ -18,14 +21,14 @@ namespace WinEventsSpy.Wrappers
         private bool started;
         private object stateLock;
 
-        private Timer timer;
         private IntPtr process;
+        private ManualResetEvent processEvent;
+        private ManualResetEvent stopEvent;
 
         private bool disposed;
 
 
         public uint ProcessId { get; set; }
-        public uint PollInterval { get; set; }
 
         public bool IsStarted
         {
@@ -49,14 +52,9 @@ namespace WinEventsSpy.Wrappers
             started = false;
             stateLock = new object();
 
-            timer = new Timer();
-            timer.Elapsed += new ElapsedEventHandler(timer_Elapsed);
-            process = IntPtr.Zero;
-
             disposed = false;
 
             ProcessId = 0;
-            PollInterval = 1000;
         }
 
         ~ProcessMonitor()
@@ -79,12 +77,7 @@ namespace WinEventsSpy.Wrappers
                     throw new InvalidOperationException("ProccesId was not set");
                 }
 
-                if (PollInterval == 0)
-                {
-                    throw new InvalidOperationException("PollInterval was not set");
-                }
-
-                process = PInvoke.Processes.Functions.OpenProcess(OpenProcessAccessFlag.QUERY_INFORMATION,
+                process = PInvoke.Processes.Functions.OpenProcess(OpenProcessAccessFlag.QUERY_INFORMATION | OpenProcessAccessFlag.SYNCHRONIZE,
                     false, ProcessId);
 
                 if (process == IntPtr.Zero)
@@ -94,7 +87,11 @@ namespace WinEventsSpy.Wrappers
 
                 started = true;
 
-                timer.Start();
+                processEvent = new ManualResetEvent(false);
+                processEvent.SafeWaitHandle = new SafeWaitHandle(process, true);
+                stopEvent = new ManualResetEvent(false);
+
+                new Thread(new ThreadStart(Monitor)).Start();
 
                 if (Started != null)
                 {
@@ -112,12 +109,11 @@ namespace WinEventsSpy.Wrappers
                     throw new InvalidOperationException("Already stopped");
                 }
 
-                PInvoke.Resources.Functions.CloseHandle(process);
-                process = IntPtr.Zero;
-
                 started = false;
 
-                timer.Stop();
+                stopEvent.Set();
+
+                EndMonitor();
 
                 if (Stopped != null)
                 {
@@ -133,9 +129,19 @@ namespace WinEventsSpy.Wrappers
         }
 
 
-        void timer_Elapsed(object sender, ElapsedEventArgs e)
+        private void EndMonitor()
         {
-            lock (stateLock)
+            PInvoke.Resources.Functions.CloseHandle(process);
+
+            processEvent.Close();
+            stopEvent.Close();
+        }
+
+        private void Monitor()
+        {
+            WaitHandle.WaitAny(new[] { processEvent, stopEvent });
+
+            lock(stateLock)
             {
                 if (started)
                 {
@@ -148,6 +154,10 @@ namespace WinEventsSpy.Wrappers
 
                     if (exitCode != GetExitCodeProcessExitCode.STATUS_PENDING)
                     {
+                        started = false;
+
+                        EndMonitor();
+
                         var eventArgs = new ExitedEventArgs
                         {
                             ExitCode = exitCode
@@ -157,8 +167,6 @@ namespace WinEventsSpy.Wrappers
                         {
                             Exited(this, eventArgs);
                         }
-
-                        Stop();
                     }
                 }
             }
@@ -178,10 +186,10 @@ namespace WinEventsSpy.Wrappers
                 {
                     if (started)
                     {
-                        PInvoke.Resources.Functions.CloseHandle(process);
+                        EndMonitor();
                     }
                 }
-                timer.Dispose();
+                //timer.Dispose();
 
                 disposed = true;
             }

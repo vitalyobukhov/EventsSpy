@@ -12,18 +12,27 @@ namespace WinEventsSpy.Forms
     {
         private enum FormState
         {
+            // no hook and activity
             Idle,
+            // waiting for mouse click on target window
             MouseActive,
+            // target window was captured
             TargetActive
         }
 
 
         private FormState state;
 
+        // monitors mouse input to specify target window
         private EventGrabber mouseGrabber;
+        // monitors target window events
         private EventGrabber targetGrabber;
+        // monitors target process availability
         private ProcessMonitor targetMonitor;
+        // changes global cursor
         private SystemCursor systemCursor;
+        // to prevent issues with cursor
+        private TerminationGuard terminationGuard;
 
         private bool disposed;
 
@@ -49,8 +58,20 @@ namespace WinEventsSpy.Forms
 
             targetMonitor = new ProcessMonitor();
             targetMonitor.Stopped += new EventHandler(targetMonitor_Stopped);
+            targetMonitor.Exited += new EventHandler<ProcessMonitor.ExitedEventArgs>(targetMonitor_Stopped);
 
             systemCursor = new SystemCursor();
+
+            terminationGuard = new TerminationGuard();
+            try
+            {
+                if (!terminationGuard.TrySet())
+                {
+                    systemCursor.TryReloadAll();
+                }
+            }
+            catch
+            { }
 
             disposed = false;
         }
@@ -73,11 +94,12 @@ namespace WinEventsSpy.Forms
                     }
                 }
 
-                //dispose unmanaged resources
+                // dispose unmanaged resources
                 mouseGrabber.Dispose();
                 targetGrabber.Dispose();
                 targetMonitor.Dispose();
                 systemCursor.Dispose();
+                terminationGuard.Dispose();
 
                 disposed = true;
 
@@ -86,13 +108,15 @@ namespace WinEventsSpy.Forms
         }
 
 
+        // mouse monitoring was started
         private void mouseGrabber_Started(object sender, EventArgs e)
         {
             state = FormState.MouseActive;
 
             try
             {
-                systemCursor.Copy(SystemCursorId.CROSS, SystemCursorId.ARROW);
+                // change global cursor
+                systemCursor.Copy(SystemCursorId.CROSSHAIR, SystemCursorId.ARROW);
             }
             catch (PInvokeException)
             { }
@@ -101,18 +125,23 @@ namespace WinEventsSpy.Forms
             btnToggleHook.Text = "Cancel";
         }
 
+        //mouse monitoring stopped
+        // canceled by user or target window was specified
         private void mouseGrabber_Stopped(object sender, EventArgs e)
         {
+            // if canceled by user
             if (!targetGrabber.IsStarted)
             {
                 state = FormState.Idle;
 
-                systemCursor.RestoreAll();
+                // restore global cursor
+                systemCursor.TryRestoreAll();
 
                 btnToggleHook.Text = "Hook";
             }
         }
 
+        // mouse click on target window
         private void mouseGrabber_Grabbed(object sender, EventGrabber.GrabbedEventArgs e)
         {
             if (this.InvokeRequired)
@@ -122,12 +151,15 @@ namespace WinEventsSpy.Forms
             }
             else
             {
+                // set up target events monitoring
                 targetGrabber.ThreadId = e.ThreadId;
                 targetGrabber.ProcessId = e.ProcessId;
                 targetGrabber.Start();
 
+                // stop mouse monitoring
                 mouseGrabber.Stop();
 
+                // set up target availability monitoring
                 targetMonitor.ProcessId = e.ProcessId;
                 targetMonitor.Start();
 
@@ -138,10 +170,12 @@ namespace WinEventsSpy.Forms
                 tbxThreadId.Text = e.ThreadId.ToString();
                 btnToggleHook.Text = "Unhook";
 
-                systemCursor.RestoreAll();
+                // restore global cursor
+                systemCursor.TryRestoreAll();
             }
         }
 
+        // target event monitoring was stopped
         private void targetGrabber_Stopped(object sender, EventArgs e)
         {
             state = FormState.Idle;
@@ -152,6 +186,7 @@ namespace WinEventsSpy.Forms
             btnToggleHook.Text = "Hook";
         }
 
+        // target raised event
         private void targetGrabber_Grabbed(object sender, EventGrabber.GrabbedEventArgs e)
         {
             if (this.InvokeRequired)
@@ -173,6 +208,7 @@ namespace WinEventsSpy.Forms
             }
         }
 
+        // target availability monitoring was stopped
         private void targetMonitor_Stopped(object sender, EventArgs e)
         {
             if (this.InvokeRequired)
@@ -198,6 +234,7 @@ namespace WinEventsSpy.Forms
         {
             switch (state)
             {
+                //initiate mouse monitoring
                 case FormState.Idle:
                     try
                     {
@@ -210,6 +247,7 @@ namespace WinEventsSpy.Forms
                     }
                     break;
 
+                //cancel by user
                 case FormState.MouseActive:
                     try
                     {
@@ -222,6 +260,7 @@ namespace WinEventsSpy.Forms
                     }
                     break;
 
+                //cancel target monitoring
                 case FormState.TargetActive:
                     try
                     {
@@ -237,6 +276,11 @@ namespace WinEventsSpy.Forms
                 default:
                     throw new InvalidOperationException();
             }
+        }
+
+        void Main_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            Dispose();
         }
     }
 }

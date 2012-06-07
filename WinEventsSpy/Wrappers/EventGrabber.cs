@@ -5,6 +5,8 @@ using WinEventsSpy.PInvoke.WinEvents.Structures;
 
 namespace WinEventsSpy.Wrappers
 {
+    // winevents wrapper
+    // monitors and raises events
     sealed class EventGrabber : IDisposable
     {
         public sealed class GrabbedEventArgs : EventArgs
@@ -115,7 +117,6 @@ namespace WinEventsSpy.Wrappers
             stateLock = new object();
 
             handleHook = GCHandle.Alloc(new SetWinEventHookDelegate(HandleHook));
-            hook = IntPtr.Zero;
 
             disposed = false;
 
@@ -175,7 +176,6 @@ namespace WinEventsSpy.Wrappers
                 {
                     throw new PInvokeException("Unable to remove event hook");
                 }
-                hook = IntPtr.Zero;
 
                 started = false;
 

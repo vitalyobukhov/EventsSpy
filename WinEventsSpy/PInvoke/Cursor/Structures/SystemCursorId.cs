@@ -2,20 +2,20 @@
 {
     enum SystemCursorId : int
     {
-        ARROW = 32512,
-        IBEAM = 32513,
-        WAIT = 32514,
-        CROSS = 32515,
-        UPARROW = 32516,
-        SIZE = 32640,
-        ICON = 32641,
-        SIZENWSE = 32642,
-        SIZENESW = 32643,
-        SIZEWE = 32644,
-        SIZENS = 32645,
-        SIZEALL = 32646,
-        NO = 32648,
-        APPSTARTING = 32650,
-        HELP = 32651
+        ARROW       = 0x7F00,
+        IBEAM       = 0x7F01,
+        WAIT        = 0x7F02,
+        CROSSHAIR   = 0x7F03,
+        UPARROW     = 0x7F04,
+        NWPEN       = 0x7F77,
+        SIZENWSE    = 0x7F82,
+        SIZENESW    = 0x7F83,
+        SIZEWE      = 0x7F84,
+        SIZENS      = 0x7F85,
+        SIZEALL     = 0x7F86,
+        NO          = 0x7F88,
+        HAND        = 0x7F89,
+        APPSTARTING = 0x7F8A,
+        HELP        = 0x7F8B
     }
 }

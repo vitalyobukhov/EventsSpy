@@ -1,6 +1,6 @@
-﻿namespace WinEventsSpy.PInvoke.Windows.Structures
+﻿namespace WinEventsSpy.PInvoke.Messages.Structures
 {
-    enum Messages : int
+    enum Message : int
     {
         WM_NULL = 0x0000,
         WM_CREATE = 0x0001,

@@ -33,9 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <PropertyGroup>
-    <ApplicationIcon>search.ico</ApplicationIcon>
+    <ApplicationIcon>glass.ico</ApplicationIcon>
   </PropertyGroup>
   <PropertyGroup />
+  <PropertyGroup>
+    <NoWin32Manifest>true</NoWin32Manifest>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Data" />
@@ -45,17 +48,44 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MainForm.cs">
+    <Compile Include="Controls\AutoscrollListBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="Forms\MainForm.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="MainForm.Designer.cs">
+    <Compile Include="Forms\MainForm.Designer.cs">
       <DependentUpon>MainForm.cs</DependentUpon>
     </Compile>
+    <Compile Include="PInvoke\Windows\Functions.cs" />
+    <Compile Include="PInvoke\Windows\Structures\ExtendedWindowStyle.cs" />
+    <Compile Include="PInvoke\Windows\Structures\GetWindowLongOffset.cs" />
+    <Compile Include="PInvoke\Messages\Structures\Messages.cs" />
+    <Compile Include="PInvoke\Windows\Structures\WindowStyle.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="WinApi.cs" />
-    <EmbeddedResource Include="MainForm.resx">
+    <Compile Include="PInvoke\Cursor\Functions.cs" />
+    <Compile Include="PInvoke\Cursor\Structures\SystemCursorId.cs" />
+    <Compile Include="PInvoke\Processes\Functions.cs" />
+    <Compile Include="PInvoke\Processes\Structures\GetExitCodeProcessExitCode.cs" />
+    <Compile Include="PInvoke\Processes\Structures\OpenProcessAccessFlag.cs" />
+    <Compile Include="PInvoke\Resources\Functions.cs" />
+    <Compile Include="PInvoke\Resources\Structures\CopyImageFlag.cs" />
+    <Compile Include="PInvoke\Resources\Structures\ImageType.cs" />
+    <Compile Include="PInvoke\WinEvents\Functions.cs" />
+    <Compile Include="PInvoke\WinEvents\Structures\SetWinEventHookDelegate.cs" />
+    <Compile Include="PInvoke\WinEvents\Structures\SetWinEventHookEventType.cs" />
+    <Compile Include="PInvoke\WinEvents\Structures\SetWinEventHookFlag.cs" />
+    <Compile Include="PInvoke\WinEvents\Structures\SetWinEventHookObjectId.cs" />
+    <Compile Include="Wrappers\EventGrabber.cs" />
+    <Compile Include="Wrappers\ProcessMonitor.cs" />
+    <Compile Include="Wrappers\SystemCursor.cs" />
+    <Compile Include="PInvoke\PInvokeException.cs" />
+    <Compile Include="Wrappers\TerminationGuard.cs" />
+    <Compile Include="Wrappers\WindowStyleManager.cs" />
+    <EmbeddedResource Include="Forms\MainForm.resx">
       <DependentUpon>MainForm.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
@@ -77,7 +107,7 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="search.ico" />
+    <Content Include="glass.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -4,6 +4,7 @@ using System.Runtime.InteropServices;
 
 namespace WinEventsSpy.PInvoke
 {
+    // automatic pinvoke exception wrapper with semantic message 
     sealed class PInvokeException : Exception
     {
         public PInvokeException()
@@ -16,6 +17,10 @@ namespace WinEventsSpy.PInvoke
         { }
 
         public PInvokeException(string message, Win32Exception exception)
+            : base(message, exception)
+        { }
+
+        public PInvokeException(string message, Exception exception)
             : base(message, exception)
         { }
     }

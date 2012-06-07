@@ -2,19 +2,19 @@
 {
     public enum SetWinEventHookStandardObjectId : int
     {
-        OBJID_SELF = 0x00000000,
-        OBJID_SYSMENU = unchecked((int)0xFFFFFFFF),
-        OBJID_TITLEBAR = unchecked((int)0xFFFFFFFE),
-        OBJID_MENU = unchecked((int)0xFFFFFFFD),
-        OBJID_CLIENT = unchecked((int)0xFFFFFFFC),
-        OBJID_VSCROLL = unchecked((int)0xFFFFFFFB),
-        OBJID_HSCROLL = unchecked((int)0xFFFFFFFA),
-        OBJID_SIZEGRIP = unchecked((int)0xFFFFFFF9),
-        OBJID_CARET = unchecked((int)0xFFFFFFF8),
-        OBJID_CURSOR = unchecked((int)0xFFFFFFF7),
-        OBJID_ALERT = unchecked((int)0xFFFFFFF6),
-        OBJID_SOUND = unchecked((int)0xFFFFFFF5),
-        OBJID_QUERYCLASSNAMEIDX = unchecked((int)0xFFFFFFF4),
-        OBJID_NATIVEOM = unchecked((int)0xFFFFFFF0)
+        OBJID_SELF              = 0,
+        OBJID_SYSMENU           = -1,
+        OBJID_TITLEBAR          = -2,
+        OBJID_MENU              = -3,
+        OBJID_CLIENT            = -4,
+        OBJID_VSCROLL           = -5,
+        OBJID_HSCROLL           = -6,
+        OBJID_SIZEGRIP          = -7,
+        OBJID_CARET             = -8,
+        OBJID_CURSOR            = -9,
+        OBJID_ALERT             = -10,
+        OBJID_SOUND             = -11,
+        OBJID_QUERYCLASSNAMEIDX = -12,
+        OBJID_NATIVEOM          = -16
     }
 }
