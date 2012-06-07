@@ -11,6 +11,16 @@ namespace WinEventsSpy.Controls
     // maximum simultaneous item count = maximum visible item count without vertical scroll
     sealed class AutoscrollListBox : ListBox
     {
+        private WindowStyleManager styleManager;
+
+
+        protected override void OnHandleCreated(EventArgs e)
+        {
+            base.OnHandleCreated(e);
+
+            styleManager = new WindowStyleManager(Handle);
+        }
+
         protected override void WndProc(ref Message m)
         {
             switch ((WindowMessage)m.Msg)
@@ -22,18 +32,23 @@ namespace WinEventsSpy.Controls
                 case WindowMessage.WM_SIZE:
                     base.WndProc(ref m);
 
-                    while (WindowStyleManager.HasStyle(Handle, WindowStyle.WS_VSCROLL) &&
-                        Items.Count > 0)
+                    if (styleManager != null)
                     {
-                        Items.RemoveAt(0);
+                        while (styleManager.HasStyle(WindowStyle.WS_VSCROLL) &&
+                            Items.Count > 0)
+                        {
+                            Items.RemoveAt(0);
+                        }
                     }
-
                     break;
 
                 case WindowMessage.WM_NCCALCSIZE:
-                    if (WindowStyleManager.HasStyle(Handle, WindowStyle.WS_VSCROLL))
+                    if (styleManager != null)
                     {
-                        WindowStyleManager.RemoveStyle(Handle, WindowStyle.WS_VSCROLL);
+                        if (styleManager.HasStyle(WindowStyle.WS_VSCROLL))
+                        {
+                            styleManager.RemoveStyle(WindowStyle.WS_VSCROLL);
+                        }
                     }
 
                     base.WndProc(ref m);

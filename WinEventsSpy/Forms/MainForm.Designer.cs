@@ -117,7 +117,7 @@ namespace WinEventsSpy.Forms
             // 
             // Main
             // 
-            this.FormClosed += new FormClosedEventHandler(Main_FormClosed);
+            //this.FormClosed += new FormClosedEventHandler(Main_FormClosed);
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(472, 288);
@@ -129,7 +129,7 @@ namespace WinEventsSpy.Forms
             this.Controls.Add(this.tbxProcessId);
             this.Controls.Add(this.btnToggleHook);
             this.Controls.Add(this.aslbxMessages);
-            this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
+
             this.MinimumSize = new System.Drawing.Size(488, 326);
             this.Name = "Main";
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;

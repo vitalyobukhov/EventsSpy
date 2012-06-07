@@ -86,7 +86,7 @@ namespace WinEventsSpy.Wrappers
         private GCHandle handleHook;
         private IntPtr hook;
 
-        private bool disposed;
+        private bool? disposed;
 
 
         public SetWinEventHookEventType MinEventType { get; set; }
@@ -196,23 +196,26 @@ namespace WinEventsSpy.Wrappers
         private void HandleHook(IntPtr hook, SetWinEventHookEventType eventType, 
             IntPtr window, int objectId, int childId, uint threadId, uint time)
         {
-            lock (stateLock)
+            if (disposed == false)
             {
-                if (started)
+                lock (stateLock)
                 {
-                    var eventArgs = new GrabbedEventArgs
+                    if (started)
                     {
-                        EventType = eventType,
-                        Window = window,
-                        ObjectId = objectId,
-                        ChildId = childId,
-                        ThreadId = threadId,
-                        Time = time
-                    };
+                        var eventArgs = new GrabbedEventArgs
+                        {
+                            EventType = eventType,
+                            Window = window,
+                            ObjectId = objectId,
+                            ChildId = childId,
+                            ThreadId = threadId,
+                            Time = time
+                        };
 
-                    if (Grabbed != null)
-                    {
-                        Grabbed(this, eventArgs);
+                        if (Grabbed != null)
+                        {
+                            Grabbed(this, eventArgs);
+                        }
                     }
                 }
             }
@@ -220,8 +223,10 @@ namespace WinEventsSpy.Wrappers
 
         private void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposed == false)
             {
+                disposed = null;
+
                 if (disposing)
                 {
                     //dispose managed resources

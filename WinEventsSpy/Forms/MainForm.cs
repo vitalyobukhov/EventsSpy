@@ -5,6 +5,8 @@ using WinEventsSpy.PInvoke;
 using WinEventsSpy.PInvoke.Cursor.Structures;
 using WinEventsSpy.PInvoke.WinEvents.Structures;
 using WinEventsSpy.PInvoke.Windows.Structures;
+using System.Reflection;
+using System.Drawing;
 
 namespace WinEventsSpy.Forms
 {
@@ -34,12 +36,11 @@ namespace WinEventsSpy.Forms
         // to prevent issues with cursor
         private TerminationGuard terminationGuard;
 
-        private bool disposed;
-
         
         public Main()
         {
             InitializeComponent();
+            this.Icon = Icon.ExtractAssociatedIcon(Assembly.GetExecutingAssembly().Location);
 
             state = FormState.Idle;
 
@@ -57,8 +58,8 @@ namespace WinEventsSpy.Forms
             targetGrabber.Grabbed += new EventHandler<EventGrabber.GrabbedEventArgs>(targetGrabber_Grabbed);
 
             targetMonitor = new ProcessMonitor();
-            targetMonitor.Stopped += new EventHandler(targetMonitor_Stopped);
-            targetMonitor.Exited += new EventHandler<ProcessMonitor.ExitedEventArgs>(targetMonitor_Stopped);
+            targetMonitor.Stopped += new EventHandler(targetMonitor_Ended);
+            targetMonitor.Exited += new EventHandler<ProcessMonitor.ExitedEventArgs>(targetMonitor_Ended);
 
             systemCursor = new SystemCursor();
 
@@ -72,39 +73,26 @@ namespace WinEventsSpy.Forms
             }
             catch
             { }
-
-            disposed = false;
-        }
-
-        ~Main()
-        {
-            Dispose(false);
         }
 
 
         protected override void Dispose(bool disposing)
         {
-            if (!disposed)
+            if (disposing)
             {
-                if (disposing)
+                if (components != null)
                 {
-                    if (components != null)
-                    {
-                        components.Dispose();
-                    }
+                    components.Dispose();
                 }
 
-                // dispose unmanaged resources
                 mouseGrabber.Dispose();
                 targetGrabber.Dispose();
                 targetMonitor.Dispose();
                 systemCursor.Dispose();
                 terminationGuard.Dispose();
-
-                disposed = true;
-
-                base.Dispose(disposing);
             }
+
+            base.Dispose(disposing);
         }
 
 
@@ -125,7 +113,7 @@ namespace WinEventsSpy.Forms
             btnToggleHook.Text = "Cancel";
         }
 
-        //mouse monitoring stopped
+        // mouse monitoring stopped
         // canceled by user or target window was specified
         private void mouseGrabber_Stopped(object sender, EventArgs e)
         {
@@ -209,11 +197,11 @@ namespace WinEventsSpy.Forms
         }
 
         // target availability monitoring was stopped
-        private void targetMonitor_Stopped(object sender, EventArgs e)
+        private void targetMonitor_Ended(object sender, EventArgs e)
         {
             if (this.InvokeRequired)
             {
-                this.Invoke(new EventHandler(targetMonitor_Stopped),
+                this.Invoke(new EventHandler(targetMonitor_Ended),
                     new object[] { sender, e });
             }
             else
@@ -276,11 +264,6 @@ namespace WinEventsSpy.Forms
                 default:
                     throw new InvalidOperationException();
             }
-        }
-
-        void Main_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            Dispose();
         }
     }
 }
